@@ -1,0 +1,78 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Process Scheduler Configuration",
+  "type": "object",
+  "properties": {
+    "simulation": {
+      "type": "object",
+      "properties": {
+        "totalRounds": {
+          "type": "integer",
+          "description": "总调度轮数"
+        },
+        "timeSpeed": {
+          "type": "integer",
+          "description": "每次调度时间"
+        },
+        "events": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "round": {
+                "type": "integer",
+                "description": "事件发生的回合"
+              },
+              "action": {
+                "type": "string",
+                "enum": ["ADD_PROCESS", "TERMINATE_PROCESS", "CHANGE_PRIORITY"]
+              },
+              "processId": {
+                "type": "integer"
+              },
+              "newPriority": {
+                "type": "string",
+                "enum": ["REAL_TIME", "HIGH", "NORMAL", "LOW"]
+              }
+            },
+            "required": ["round", "action"]
+          }
+        }
+      },
+      "required": ["totalRounds"]
+    },
+    "processes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "state": {
+            "type": "string",
+            "enum": ["ACTIVE_READY", "BLOCKED", "TERMINATED"]
+          },
+          "scheduling": {
+            "type": "object",
+            "properties": {
+              "totalNeedTime": { "type": "integer" },
+              "timeSlice": { "type": "integer" },
+              "priority": {
+                "type": "string",
+                "enum": ["REAL_TIME", "HIGH", "NORMAL", "LOW"]
+              },
+              "policy": {
+                "type": "string",
+                "enum": ["SJF", "FCFS", "RP", "PR"]
+              },
+              "preemptable": { "type": "boolean" }
+            },
+            "required": ["totalNeedTime", "timeSlice", "priority", "policy", "preemptable"]
+          }
+        },
+        "required": ["id", "name", "state", "scheduling"]
+      }
+    }
+  },
+  "required": ["simulation", "processes"]
+}

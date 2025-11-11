@@ -1,0 +1,71 @@
+# PR.yaml
+simulation:
+  timeSpeed: 10
+  totalRounds: 25
+  events:
+    - round: 0
+      action: "ADD_PROCESS"
+      processId: 1001
+    - round: 1
+      action: "ADD_PROCESS"
+      processId: 1002
+    - round: 2
+      action: "ADD_PROCESS"
+      processId: 1003
+    - round: 3
+      action: "ADD_PROCESS"
+      processId: 1004
+    - round: 4
+      action: "ADD_PROCESS"
+      processId: 1005
+
+processes:
+  - id: 1001
+    name: "p-1"
+    state: "ACTIVE_READY"
+    scheduling:
+      totalNeedTime: 50
+      timeSlice: 10
+      priority: "REAL_TIME"
+      policy: "PR"
+      preemptable: false
+
+  - id: 1002
+    name: "p-2"
+    state: "ACTIVE_READY"
+    scheduling:
+      totalNeedTime: 40
+      timeSlice: 10
+      priority: "REAL_TIME"
+      policy: "PR"
+      preemptable: false
+
+  - id: 1003
+    name: "p-3"
+    state: "ACTIVE_READY"
+    scheduling:
+      totalNeedTime: 20
+      timeSlice: 10
+      priority: "LOW"
+      policy: "PR"
+      preemptable: false
+
+  - id: 1004
+    name: "p-4"
+    state: "ACTIVE_READY"
+    scheduling:
+      totalNeedTime: 20
+      timeSlice: 10
+      priority: "LOW"
+      policy: "PR"
+      preemptable: false
+
+  - id: 1005
+    name: "p-5"
+    state: "ACTIVE_READY"
+    scheduling:
+      totalNeedTime: 40
+      timeSlice: 10
+      priority: "REAL_TIME"
+      policy: "PR"
+      preemptable: false
