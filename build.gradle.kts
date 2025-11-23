@@ -1,9 +1,10 @@
 plugins {
     kotlin("jvm") version "1.9.23"
     application
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
-group = "top.r3944realms.superleadrope"
+group = "top.r3944realms.cos"
 version = "1.0-SNAPSHOT"
 
 repositories {
@@ -21,9 +22,23 @@ dependencies {
     testImplementation(kotlin("test"))
 }
 
+tasks.shadowJar {
+    archiveBaseName.set("${project.name}-shadow")
+    archiveVersion.set("")
+    archiveClassifier.set("")
+    manifest {
+        attributes(mapOf("Main-Class" to application.mainClass.get()))
+    }
+}
+
 tasks.test {
     useJUnitPlatform()
 }
+
+tasks.build {
+    dependsOn(tasks.shadowJar)
+}
+
 kotlin {
     jvmToolchain(17)
 }

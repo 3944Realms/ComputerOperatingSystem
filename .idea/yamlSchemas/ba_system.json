@@ -1,0 +1,264 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Banker's Algorithm Configuration Schema",
+  "description": "Schema for configuring Banker's Algorithm simulation",
+  "type": "object",
+  "properties": {
+    "simulation": {
+      "type": "object",
+      "description": "Simulation configuration",
+      "properties": {
+        "totalRounds": {
+          "type": "integer",
+          "description": "Total number of simulation rounds",
+          "minimum": 1
+        },
+        "timeSpeed": {
+          "type": "integer",
+          "description": "Time speed in milliseconds between rounds",
+          "default": 1000,
+          "minimum": 0
+        },
+        "autoMode": {
+          "type": "boolean",
+          "description": "Whether to run in automatic mode",
+          "default": false
+        },
+        "enableDeadlockDetection": {
+          "type": "boolean",
+          "description": "Enable deadlock detection",
+          "default": true
+        },
+        "enableSafetyCheck": {
+          "type": "boolean",
+          "description": "Enable safety check",
+          "default": true
+        },
+        "events": {
+          "type": "array",
+          "description": "Simulation events",
+          "items": {
+            "type": "object",
+            "properties": {
+              "round": {
+                "type": "integer",
+                "description": "Round when event occurs",
+                "minimum": 0
+              },
+              "action": {
+                "type": "string",
+                "description": "Event action type",
+                "enum": ["REQUEST", "RELEASE", "ADD_PROCESS", "REMOVE_PROCESS"]
+              },
+              "processId": {
+                "type": "integer",
+                "description": "Target process ID"
+              },
+              "resourceType": {
+                "type": "string",
+                "description": "Resource type for single resource operations"
+              },
+              "amount": {
+                "type": "integer",
+                "description": "Amount for single resource operations",
+                "minimum": 0
+              },
+              "resources": {
+                "type": "object",
+                "description": "Multiple resource requests/releases",
+                "additionalProperties": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "processConfig": {
+                "type": "object",
+                "description": "Process configuration for ADD_PROCESS events",
+                "$ref": "#/definitions/processConfig"
+              }
+            },
+            "required": ["round", "action"],
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "action": { "const": "REQUEST" }
+                  }
+                },
+                "then": {
+                  "required": ["processId"]
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "action": { "const": "RELEASE" }
+                  }
+                },
+                "then": {
+                  "required": ["processId"]
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "action": { "const": "ADD_PROCESS" }
+                  }
+                },
+                "then": {
+                  "required": ["processConfig"]
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "action": { "const": "REMOVE_PROCESS" }
+                  }
+                },
+                "then": {
+                  "required": ["processId"]
+                }
+              }
+            ]
+          },
+          "default": []
+        }
+      },
+      "required": ["totalRounds"]
+    },
+    "resources": {
+      "type": "object",
+      "description": "System resource configuration",
+      "properties": {
+        "types": {
+          "type": "array",
+          "description": "Available resource types",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "available": {
+          "type": "object",
+          "description": "Initially available resources",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "descriptions": {
+          "type": "object",
+          "description": "Resource descriptions",
+          "additionalProperties": {
+            "type": "string"
+          },
+          "default": {}
+        },
+        "total": {
+          "type": "object",
+          "description": "Total system resources",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "required": ["types", "available"]
+    },
+    "processes": {
+      "type": "array",
+      "description": "Process configurations",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Process ID",
+            "minimum": 0
+          },
+          "name": {
+            "type": "string",
+            "description": "Process name"
+          },
+          "state": {
+            "type": "string",
+            "description": "Initial process state",
+            "enum": ["NEW", "RUNNING", "ACTIVE_READY", "STATIC_READY", "ACTIVE_BLOCKED", "STATIC_BLOCKED", "TERMINATED"],
+            "default": "ACTIVE_READY"
+          },
+          "scheduling": {
+            "type": "object",
+            "description": "Scheduling configuration",
+            "properties": {
+              "totalNeedTime": {
+                "type": "integer",
+                "description": "Total needed execution time",
+                "minimum": 1
+              },
+              "timeSlice": {
+                "type": "integer",
+                "description": "Time slice length",
+                "minimum": 1
+              },
+              "priority": {
+                "type": "string",
+                "description": "Process priority level"
+              },
+              "policy": {
+                "type": "string",
+                "description": "Scheduling policy"
+              },
+              "preemptable": {
+                "type": "boolean",
+                "description": "Whether process is preemptable"
+              },
+              "arrivalTime": {
+                "type": "integer",
+                "description": "Process arrival time",
+                "default": 0,
+                "minimum": 0
+              }
+            },
+            "required": ["totalNeedTime", "timeSlice", "priority", "policy", "preemptable"]
+          },
+          "resources": {
+            "type": "object",
+            "description": "Process resource configuration",
+            "properties": {
+              "maxDemand": {
+                "type": "object",
+                "description": "Maximum resource demand",
+                "additionalProperties": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              },
+              "allocation": {
+                "type": "object",
+                "description": "Initial resource allocation",
+                "additionalProperties": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "default": {}
+              },
+              "need": {
+                "type": "object",
+                "description": "Initial resource need (calculated if not provided)",
+                "additionalProperties": {
+                  "type": "integer",
+                  "minimum": 0
+                }
+              }
+            },
+            "required": ["maxDemand"]
+          }
+        },
+        "required": ["id", "name", "scheduling", "resources"]
+      },
+      "minItems": 1
+    }
+  },
+  "required": ["simulation", "resources", "processes"],
+  "additionalProperties": false
+}

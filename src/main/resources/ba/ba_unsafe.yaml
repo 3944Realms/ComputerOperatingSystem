@@ -1,0 +1,196 @@
+simulation:
+  totalRounds: 8
+  timeSpeed: 500
+  autoMode: true
+  enableDeadlockDetection: true
+  enableSafetyCheck: true
+  events:
+    - round: 1
+      action: "REQUEST"
+      processId: 0
+      resources:
+        CPU: 2
+        Memory: 1
+        IO: 1
+    - round: 2
+      action: "RELEASE"
+      processId: 1
+      resources:
+        CPU: 1
+        Memory: 1
+        IO: 0
+    - round: 3
+      action: "ADD_PROCESS"
+      processConfig:
+        id: 6
+        name: "DynamicProcess"
+        state: "ACTIVE_READY"
+        scheduling:
+          totalNeedTime: 75
+          timeSlice: 25
+          priority: "NORMAL"
+          policy: "PR"
+          preemptable: true
+          arrivalTime: 8
+        resources:
+          maxDemand:
+            CPU: 3
+            Memory: 2
+            IO: 1
+          allocation:
+            CPU: 0
+            Memory: 0
+            IO: 0
+    - round: 4
+      action: "REMOVE_PROCESS"
+      processId: 2
+    - round: 5
+      action: "REQUEST"
+      processId: 3
+      resources:
+        CPU: 1
+        Memory: 1
+        IO: 0
+    - round: 6
+      action: "RELEASE"
+      processId: 4
+      resources:
+        CPU: 0
+        Memory: 1
+        IO: 1
+
+resources:
+  types: ["CPU", "Memory", "IO"]
+  available:
+    CPU: 5
+    Memory: 6
+    IO: 3
+  descriptions:
+    CPU: "Processor Cores"
+    Memory: "Memory Blocks"
+    IO: "I/O Devices"
+  total:
+    CPU: 12
+    Memory: 15
+    IO: 8
+
+processes:
+  - id: 0
+    name: "WebServer"
+    state: "RUNNING"
+    scheduling:
+      totalNeedTime: 200
+      timeSlice: 50
+      priority: "HIGH"
+      policy: "PR"
+      preemptable: true
+      arrivalTime: 0
+    resources:
+      maxDemand:
+        CPU: 5
+        Memory: 6
+        IO: 2
+      allocation:
+        CPU: 1
+        Memory: 2
+        IO: 1
+
+  - id: 1
+    name: "Database"
+    state: "RUNNING"
+    scheduling:
+      totalNeedTime: 300
+      timeSlice: 75
+      priority: "HIGH"
+      policy: "PR"
+      preemptable: true
+      arrivalTime: 0
+    resources:
+      maxDemand:
+        CPU: 4
+        Memory: 8
+        IO: 3
+      allocation:
+        CPU: 2
+        Memory: 3
+        IO: 1
+
+  - id: 2
+    name: "CacheService"
+    state: "ACTIVE_READY"
+    scheduling:
+      totalNeedTime: 150
+      timeSlice: 40
+      priority: "NORMAL"
+      policy: "PR"
+      preemptable: true
+      arrivalTime: 0
+    resources:
+      maxDemand:
+        CPU: 3
+        Memory: 4
+        IO: 1
+      allocation:
+        CPU: 1
+        Memory: 1
+        IO: 0
+
+  - id: 3
+    name: "BackupService"
+    state: "ACTIVE_BLOCKED"
+    scheduling:
+      totalNeedTime: 250
+      timeSlice: 60
+      priority: "LOW"
+      policy: "PR"
+      preemptable: true
+      arrivalTime: 0
+    resources:
+      maxDemand:
+        CPU: 2
+        Memory: 3
+        IO: 2
+      allocation:
+        CPU: 1
+        Memory: 1
+        IO: 1
+
+  - id: 4
+    name: "MonitorAgent"
+    state: "ACTIVE_READY"
+    scheduling:
+      totalNeedTime: 100
+      timeSlice: 30
+      priority: "NORMAL"
+      policy: "PR"
+      preemptable: true
+      arrivalTime: 0
+    resources:
+      maxDemand:
+        CPU: 2
+        Memory: 2
+        IO: 1
+      allocation:
+        CPU: 0
+        Memory: 1
+        IO: 0
+
+  - id: 5
+    name: "LogProcessor"
+    state: "ACTIVE_READY"
+    scheduling:
+      totalNeedTime: 180
+      timeSlice: 45
+      priority: "LOW"
+      policy: "PR"
+      preemptable: true
+      arrivalTime: 0
+    resources:
+      maxDemand:
+        CPU: 3
+        Memory: 3
+        IO: 2
+      allocation:
+        CPU: 1
+        Memory: 1
+        IO: 1

@@ -1,0 +1,110 @@
+# bankers_config_schema.yaml
+simulation:
+  totalRounds: 5
+  timeSpeed: 1000
+  autoMode: false
+  enableDeadlockDetection: true
+  enableSafetyCheck: true
+  events:
+    - round: 1
+      action: "REQUEST"
+      processId: 0
+      resources:
+        CPU: 1
+        Memory: 0
+        IO: 0
+
+    - round: 2
+      action: "REQUEST"
+      processId: 1
+      resources:
+        CPU: 0
+        Memory: 2
+        IO: 0
+
+    - round: 3
+      action: "RELEASE"
+      processId: 0
+      resources:
+        CPU: 1
+        Memory: 0
+        IO: 0
+
+    - round: 4
+      action: "ADD_PROCESS"
+      processConfig:
+        id: 5
+        name: "NewProcess"
+        state: "ACTIVE_READY"
+        scheduling:
+          totalNeedTime: 50
+          timeSlice: 50
+          priority: "NORMAL"
+          policy: "PR"
+          preemptable: true
+          arrivalTime: 10
+        resources:
+          maxDemand:
+            CPU: 3
+            Memory: 2
+            IO: 2
+          allocation:
+            CPU: 0
+            Memory: 0
+            IO: 0
+
+resources:
+  types: ["CPU", "Memory", "IO"]
+  available:
+    CPU: 30
+    Memory: 30
+    IO: 20
+  descriptions:
+    CPU: "Processor Cores"
+    Memory: "Memory Blocks"
+    IO: "I/O Devices"
+  total:
+    CPU: 8
+    Memory: 8
+    IO: 4
+
+processes:
+  - id: 0
+    name: "Process-0"
+    state: "ACTIVE_READY"
+    scheduling:
+      totalNeedTime: 100
+      timeSlice: 100
+      priority: "NORMAL"
+      policy: "PR"
+      preemptable: true
+      arrivalTime: 0
+    resources:
+      maxDemand:
+        CPU: 7
+        Memory: 5
+        IO: 3
+      allocation:
+        CPU: 0
+        Memory: 1
+        IO: 0
+
+  - id: 1
+    name: "Process-1"
+    state: "ACTIVE_READY"
+    scheduling:
+      totalNeedTime: 80
+      timeSlice: 80
+      priority: "HIGH"
+      policy: "PR"
+      preemptable: true
+      arrivalTime: 0
+    resources:
+      maxDemand:
+        CPU: 3
+        Memory: 2
+        IO: 2
+      allocation:
+        CPU: 2
+        Memory: 0
+        IO: 0

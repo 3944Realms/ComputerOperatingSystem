@@ -7,27 +7,27 @@ import top.r3944realms.cos.config.YAMLConfigLoader
 import top.r3944realms.cos.data.ProcessControlBlock
 import top.r3944realms.cos.data.ProcessState
 import top.r3944realms.cos.hardware.CPURegisters
-import top.r3944realms.cos.model.CompleteConfig
+import top.r3944realms.cos.model.PSDConfigModels
 import java.io.File
 
-object System {
+object PSSystem {
     private var scheduler: AdvancedProcessScheduler? = null
     private var processMap: Map<Int, ProcessControlBlock> = emptyMap()
-    private var config: CompleteConfig? = null
+    private var config: PSDConfigModels.CompleteConfig? = null
     private var savePath: String? = null
 
     /**
      * 从 YAML 配置文件加载并初始化系统
      */
-    fun initialize(configPath: String = "system.yaml") {
+    fun initialize(configPath: String = "ps_system.yaml") {
         Logger.info("=== COS System Initialization ===")
 
         // 加载配置
         config = if (File(configPath).exists()) {
-            YAMLConfigLoader.loadConfig(configPath, CompleteConfig::class.java)
+            YAMLConfigLoader.loadConfig(configPath, PSDConfigModels.CompleteConfig::class.java)
         } else {
             // 从资源目录加载
-            YAMLConfigLoader.loadConfigFromResource(configPath, CompleteConfig::class.java)
+            YAMLConfigLoader.loadConfigFromResource(configPath, PSDConfigModels.CompleteConfig::class.java)
         }
         scheduler = AdvancedProcessScheduler(config!!.simulation.timeSpeed)
 
@@ -96,7 +96,7 @@ object System {
     }
 
 
-    private fun createProcessesFromConfig(config: CompleteConfig): Map<Int, ProcessControlBlock> {
+    private fun createProcessesFromConfig(config: PSDConfigModels.CompleteConfig): Map<Int, ProcessControlBlock> {
         return config.processes.associate { processConfig ->
             val pcb = ProcessControlBlock(
                 id = ProcessControlBlock.ProcessIdentification(processConfig.id),
@@ -117,7 +117,7 @@ object System {
         }
     }
 
-    private fun processEvents(round: Int, config: CompleteConfig) {
+    private fun processEvents(round: Int, config: PSDConfigModels.CompleteConfig) {
         config.simulation.events.filter { it.round == round }.forEach { event ->
             when (event.action) {
                 "ADD_PROCESS" -> {

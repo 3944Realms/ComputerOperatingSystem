@@ -134,10 +134,27 @@ object Logger {
      * 写入带标题的分隔线
      */
     fun separator(title: String, char: Char = '=', length: Int = 50) {
-        val availableLength = length - title.length - 4 // 4 for spaces and padding
+        val titleWithPadding = " $title "
+        val totalLength = maxOf(length, titleWithPadding.length + 4) // 确保最小长度
+        val availableLength = totalLength - titleWithPadding.length
         val sideLength = availableLength / 2
-        val separator = "${char.toString().repeat(sideLength)} $title ${char.toString().repeat(sideLength)}"
-        info(separator)
+
+        val separator = if (availableLength >= 2) {
+            // 正常情况：标题两边都有分隔符
+            "${char.toString().repeat(sideLength)}$titleWithPadding${char.toString().repeat(sideLength)}"
+        } else {
+            // 标题太长，直接显示标题
+            titleWithPadding.trim()
+        }
+
+        // 确保分隔线长度一致
+        val finalSeparator = if (separator.length < totalLength) {
+            separator + char.toString().repeat(totalLength - separator.length)
+        } else {
+            separator
+        }
+
+        info(finalSeparator)
     }
 
     /**

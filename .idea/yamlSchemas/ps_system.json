@@ -50,7 +50,7 @@
           "name": { "type": "string" },
           "state": {
             "type": "string",
-            "enum": ["ACTIVE_READY", "BLOCKED", "TERMINATED"]
+            "enum": ["NEW", "RUNNING", "ACTIVE_READY", "STATIC_READY", "ACTIVE_BLOCKED", "STATIC_BLOCKED", "TERMINATED"]
           },
           "scheduling": {
             "type": "object",

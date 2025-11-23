@@ -1,0 +1,68 @@
+simulation:
+  totalRounds: 5
+  timeSpeed: 1000
+  events:
+    - round: 1
+      action: "REQUEST"
+      processId: 0
+      resources:
+        CPU: 1
+        Memory: 0
+    - round: 2
+      action: "REQUEST"
+      processId: 1
+      resources:
+        CPU: 0
+        Memory: 1
+    - round: 3
+      action: "REQUEST"
+      processId: 0
+      resources:
+        CPU: 0
+        Memory: 1
+    - round: 4
+      action: "REQUEST"
+      processId: 1
+      resources:
+        CPU: 1
+        Memory: 0
+
+resources:
+  types: ["CPU", "Memory"]
+  available:
+    CPU: 1
+    Memory: 1
+
+processes:
+  - id: 0
+    name: "Process-A"
+    state: "ACTIVE_READY"
+    scheduling:
+      totalNeedTime: 100
+      timeSlice: 100
+      priority: "NORMAL"
+      policy: "PR"
+      preemptable: true
+    resources:
+      maxDemand:
+        CPU: 1
+        Memory: 1
+      allocation:
+        CPU: 0
+        Memory: 0
+  - id: 1
+    name: "Process-B"
+    state: "ACTIVE_READY"
+    scheduling:
+      totalNeedTime: 100
+      timeSlice: 100
+      priority: "NORMAL"
+      policy: "PR"
+      preemptable: true
+    resources:
+      maxDemand:
+        CPU: 1
+        Memory: 1
+      allocation:
+        CPU: 0
+        Memory: 0

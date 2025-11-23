@@ -1,0 +1,35 @@
+# safe
+simulation:
+  totalRounds: 1
+  timeSpeed: 1000
+  autoMode: false
+  enableDeadlockDetection: true
+  enableSafetyCheck: true
+  events: []
+
+resources:
+  types: ["CPU", "Memory", "IO"]
+  available:
+    CPU: 3
+    Memory: 3
+    IO: 2
+
+processes:
+  - id: 0
+    name: "Process-0"
+    state: "ACTIVE_READY"
+    scheduling:
+      totalNeedTime: 100
+      timeSlice: 100
+      priority: "NORMAL"
+      policy: "PR"
+      preemptable: true
+    resources:
+      maxDemand:
+        CPU: 7
+        Memory: 5
+        IO: 3
+      allocation:
+        CPU: 0
+        Memory: 1
+        IO: 0

@@ -1,0 +1,160 @@
+simulation:
+  totalRounds: 10
+  timeSpeed: 1000
+  autoMode: true
+  events:
+    - round: 2
+      action: "REQUEST"
+      processId: 0
+      resources:
+        CPU: 2
+        Memory: 1
+        IO: 1
+    - round: 5
+      action: "RELEASE"
+      processId: 1
+      resources:
+        CPU: 1
+        Memory: 1
+        IO: 0
+    - round: 6
+      action: "ADD_PROCESS"
+      processConfig:
+        id: 6
+        name: "DynamicProcess"
+        state: "ACTIVE_READY"
+        scheduling:
+          totalNeedTime: 75
+          timeSlice: 25
+          priority: "NORMAL"
+          policy: "PR"
+          preemptable: true
+        resources:
+          maxDemand:
+            CPU: 3
+            Memory: 2
+            IO: 1
+          allocation:
+            CPU: 0
+            Memory: 0
+            IO: 0
+    - round: 8
+      action: "REMOVE_PROCESS"
+      processId: 2
+
+resources:
+  types: ["CPU", "Memory", "IO"]
+  available:
+    CPU: 5
+    Memory: 6
+    IO: 3
+
+processes:
+  - id: 0
+    name: "Process-0"
+    state: "ACTIVE_READY"
+    scheduling:
+      totalNeedTime: 200
+      timeSlice: 50
+      priority: "HIGH"
+      policy: "PR"
+      preemptable: true
+    resources:
+      maxDemand:
+        CPU: 5
+        Memory: 4
+        IO: 2
+      allocation:
+        CPU: 1
+        Memory: 2
+        IO: 1
+  - id: 1
+    name: "Process-1"
+    state: "ACTIVE_READY"
+    scheduling:
+      totalNeedTime: 200
+      timeSlice: 50
+      priority: "HIGH"
+      policy: "PR"
+      preemptable: true
+    resources:
+      maxDemand:
+        CPU: 2
+        Memory: 1
+        IO: 2
+      allocation:
+        CPU: 3
+        Memory: 2
+        IO: 4
+  - id: 2
+    name: "Process-2"
+    state: "ACTIVE_READY"
+    scheduling:
+      totalNeedTime: 200
+      timeSlice: 50
+      priority: "HIGH"
+      policy: "PR"
+      preemptable: true
+    resources:
+      maxDemand:
+        CPU: 1
+        Memory: 1
+        IO: 1
+      allocation:
+        CPU: 0
+        Memory: 1
+        IO: 0
+  - id: 3
+    name: "Process-3"
+    state: "ACTIVE_READY"
+    scheduling:
+      totalNeedTime: 200
+      timeSlice: 50
+      priority: "HIGH"
+      policy: "PR"
+      preemptable: true
+    resources:
+      maxDemand:
+        CPU: 5
+        Memory: 2
+        IO: 2
+      allocation:
+        CPU: 3
+        Memory: 1
+        IO: 1
+  - id: 4
+    name: "Process-4"
+    state: "ACTIVE_READY"
+    scheduling:
+      totalNeedTime: 200
+      timeSlice: 50
+      priority: "HIGH"
+      policy: "PR"
+      preemptable: true
+    resources:
+      maxDemand:
+        CPU: 3
+        Memory: 1
+        IO: 2
+      allocation:
+        CPU: 2
+        Memory: 1
+        IO: 2
+  - id: 5
+    name: "Process-5"
+    state: "ACTIVE_READY"
+    scheduling:
+      totalNeedTime: 200
+      timeSlice: 50
+      priority: "HIGH"
+      policy: "PR"
+      preemptable: true
+    resources:
+      maxDemand:
+        CPU: 6
+        Memory: 2
+        IO: 4
+      allocation:
+        CPU: 2
+        Memory: 1
+        IO: 2

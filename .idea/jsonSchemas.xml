@@ -3,17 +3,35 @@
   <component name="JsonSchemaMappingsProjectConfiguration">
     <state>
       <map>
-        <entry key="system">
+        <entry key="ba_config">
           <value>
             <SchemaInfo>
               <option name="generatedName" value="新架构" />
-              <option name="name" value="system" />
-              <option name="relativePathToSchema" value=".idea/yamlSchemas/system.json" />
+              <option name="name" value="ba_config" />
+              <option name="relativePathToSchema" value=".idea/yamlSchemas/ba_system.json" />
               <option name="patterns">
                 <list>
                   <Item>
                     <option name="directory" value="true" />
-                    <option name="path" value="src/main/resources" />
+                    <option name="path" value="src/main/resources/ba" />
+                    <option name="mappingKind" value="Directory" />
+                  </Item>
+                </list>
+              </option>
+            </SchemaInfo>
+          </value>
+        </entry>
+        <entry key="ps_config">
+          <value>
+            <SchemaInfo>
+              <option name="generatedName" value="新架构" />
+              <option name="name" value="ps_config" />
+              <option name="relativePathToSchema" value=".idea/yamlSchemas/ps_system.json" />
+              <option name="patterns">
+                <list>
+                  <Item>
+                    <option name="directory" value="true" />
+                    <option name="path" value="src/main/resources/ps" />
                     <option name="mappingKind" value="Directory" />
                   </Item>
                 </list>
