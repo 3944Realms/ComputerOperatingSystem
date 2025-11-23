@@ -90,8 +90,17 @@ class BankersAlgorithm {
     /**
      * 资源请求算法
      */
+    /**
+     * 资源请求算法 - 使用PCB方法修复双重分配
+     */
     fun requestResources(process: ProcessControlBlock, requests: Map<String, Int>): Boolean {
         Logger.info("\n=== ${process.name} requesting resources: $requests ===")
+
+        // 验证当前状态
+        if (!process.validateResourceState("before resource request")) {
+            Logger.error("Invalid process state before resource request")
+            return false
+        }
 
         // 检查请求是否超过需求
         for ((resourceType, amount) in requests) {
@@ -112,6 +121,16 @@ class BankersAlgorithm {
             }
         }
 
+        // 检查分配后是否会超过最大需求
+        for ((resourceType, amount) in requests) {
+            val currentAllocation = process.resourceInfo.allocation[resourceType] ?: 0
+            val maxDemand = process.resourceInfo.maxDemand[resourceType] ?: 0
+            if (currentAllocation + amount > maxDemand) {
+                Logger.info("Error: Allocation would exceed max demand for $resourceType! (current: $currentAllocation, requested: $amount, max: $maxDemand)")
+                return false
+            }
+        }
+
         // 尝试分配资源
         Logger.info("\nAttempting to allocate resources to ${process.name}...")
 
@@ -120,30 +139,44 @@ class BankersAlgorithm {
         val oldAllocation = process.resourceInfo.allocation.toMutableMap()
         val oldNeed = process.resourceInfo.need.toMutableMap()
 
-        // 模拟分配
-        for ((resourceType, amount) in requests) {
-            available[resourceType] = (available[resourceType] ?: 0) - amount
-            process.resourceInfo.allocation[resourceType] = (process.resourceInfo.allocation[resourceType] ?: 0) + amount
-            process.resourceInfo.need[resourceType] = (process.resourceInfo.need[resourceType] ?: 0) - amount
-        }
+        // 🛠️ 修复：使用PCB的grantResourceWithValidation方法进行分配
+        try {
+            for ((resourceType, amount) in requests) {
+                // 更新可用资源
+                available[resourceType] = (available[resourceType] ?: 0) - amount
 
-        process.resourceInfo.waitingForResources.clear()
-
-        Logger.info("State after allocation:")
-        printState()
-
-        // 进行安全检查
-        if (isSafeState()) {
-            Logger.info("Resource allocation successful! System remains in safe state.")
-
-            // 标记请求为已授予
-            requests.forEach { (resourceType, amount) ->
-                process.resourceInfo.grantResource(resourceType, amount)
+                // 🛠️ 使用PCB的验证方法来分配资源
+                process.grantResourceWithValidation(resourceType, amount)
             }
 
-            return true
-        } else {
-            Logger.info("Resource allocation would lead to unsafe state, allocation rejected!")
+            process.resourceInfo.waitingForResources.clear()
+
+            Logger.info("State after allocation:")
+            printState()
+
+            // 进行安全检查
+            if (isSafeState()) {
+                Logger.info("Resource allocation successful! System remains in safe state.")
+
+                // 🛠️ 验证最终状态
+                if (!process.validateResourceState("after successful allocation")) {
+                    Logger.error("State inconsistency after successful allocation - rolling back")
+                    // 强制回滚
+                    available = oldAvailable
+                    process.resourceInfo.allocation.clear()
+                    process.resourceInfo.allocation.putAll(oldAllocation)
+                    process.resourceInfo.need.clear()
+                    process.resourceInfo.need.putAll(oldNeed)
+                    return false
+                }
+
+                return true
+            } else {
+                Logger.info("Resource allocation would lead to unsafe state, allocation rejected!")
+                throw IllegalStateException("Safety check failed")
+            }
+        } catch (e: Exception) {
+            Logger.info("Resource allocation failed: ${e.message}")
 
             // 回滚分配
             available = oldAvailable
@@ -157,12 +190,51 @@ class BankersAlgorithm {
             return false
         }
     }
+    /**
+     * 验证进程状态一致性
+     */
+    private fun validateProcessState(process: ProcessControlBlock, context: String) {
+        var isValid = true
+
+        process.resourceInfo.maxDemand.forEach { (resourceType, maxDemand) ->
+            val allocation = process.resourceInfo.allocation[resourceType] ?: 0
+            val need = process.resourceInfo.need[resourceType] ?: 0
+
+            // 验证: allocation + need = maxDemand
+            if (allocation + need != maxDemand) {
+                Logger.error("❌ State inconsistency for ${process.name} $context: $resourceType: $allocation + $need != $maxDemand")
+                isValid = false
+            }
+
+            // 验证: allocation <= maxDemand
+            if (allocation > maxDemand) {
+                Logger.error("❌ Allocation exceeds max demand for ${process.name} $context: $resourceType: $allocation > $maxDemand")
+                isValid = false
+            }
+
+            // 验证: need >= 0
+            if (need < 0) {
+                Logger.error("❌ Negative need for ${process.name} $context: $resourceType: $need")
+                isValid = false
+            }
+        }
+
+        if (!isValid) {
+            throw IllegalStateException("Process ${process.name} state inconsistency detected $context")
+        }
+    }
 
     /**
-     * 释放资源
+     * 释放资源 - 使用PCB方法
      */
     fun releaseResources(process: ProcessControlBlock, releases: Map<String, Int>): Boolean {
         Logger.info("\n=== ${process.name} releasing resources: $releases ===")
+
+        // 验证当前状态
+        if (!process.validateResourceState("before resource release")) {
+            Logger.error("Invalid process state before resource release")
+            return false
+        }
 
         // 检查释放是否超过分配
         for ((resourceType, amount) in releases) {
@@ -173,10 +245,18 @@ class BankersAlgorithm {
             }
         }
 
-        // 执行释放
+        // 执行释放 - 使用PCB的releaseResource方法
         for ((resourceType, amount) in releases) {
-            val releasedAmount = process.resourceInfo.releaseResource(resourceType, amount)
+            // 使用PCB的方法释放资源
+            val releasedAmount = process.releaseResource(resourceType, amount)
             available[resourceType] = (available[resourceType] ?: 0) + releasedAmount
+            Logger.info("Released $releasedAmount of $resourceType from ${process.name}")
+        }
+
+        // 验证释放后的状态
+        if (!process.validateResourceState("after resource release")) {
+            Logger.error("State inconsistency after resource release")
+            return false
         }
 
         Logger.info("Resources released successfully.")

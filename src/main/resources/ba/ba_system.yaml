@@ -56,16 +56,16 @@ simulation:
 resources:
   types: ["CPU", "Memory", "IO"]
   available:
-    CPU: 30
-    Memory: 30
-    IO: 20
+    CPU: 8
+    Memory: 8
+    IO: 4
   descriptions:
     CPU: "Processor Cores"
     Memory: "Memory Blocks"
     IO: "I/O Devices"
   total:
-    CPU: 8
-    Memory: 8
+    CPU: 10
+    Memory: 9
     IO: 4
 
 processes:

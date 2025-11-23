@@ -107,8 +107,23 @@ class ProcessControlBlock(
          * 授予资源请求
          */
         fun grantResource(resourceType: String, amount: Int) {
-            allocation[resourceType] = (allocation[resourceType] ?: 0) + amount
-            need[resourceType] = (need[resourceType] ?: 0) - amount
+            val currentAllocation = allocation[resourceType] ?: 0
+            val maxDemand = maxDemand[resourceType] ?: 0
+            val currentNeed = need[resourceType] ?: 0
+
+            if (currentAllocation + amount > maxDemand) {
+                Logger.error("Cannot grant $amount of $resourceType: would exceed max demand $maxDemand (current allocation: $currentAllocation)")
+                return
+            }
+
+            if (amount > currentNeed) {
+                Logger.error("Cannot grant $amount of $resourceType: exceeds need $currentNeed")
+                return
+            }
+
+            // 执行分配
+            allocation[resourceType] = currentAllocation + amount
+            need[resourceType] = currentNeed - amount
             waitingForResources.remove(resourceType)
 
             // 标记最近的请求为已授予
@@ -116,6 +131,8 @@ class ProcessControlBlock(
                 requestHistory.remove(request)
                 requestHistory.add(request.copy(granted = true))
             }
+
+            Logger.debug("Granted $amount of $resourceType to process (allocation: ${allocation[resourceType]}, need: ${need[resourceType]})")
         }
 
         /**
@@ -147,6 +164,27 @@ class ProcessControlBlock(
                 val available = availableResources[resourceType] ?: 0
                 needAmount <= available
             }
+        }
+        fun validateState(): Boolean {
+            var isValid = true
+            maxDemand.forEach { (resourceType, max) ->
+                val alloc = allocation[resourceType] ?: 0
+                val nd = need[resourceType] ?: 0
+
+                if (alloc + nd != max) {
+                    Logger.error("State inconsistency for $resourceType: $alloc + $nd != $max")
+                    isValid = false
+                }
+                if (alloc > max) {
+                    Logger.error("Allocation exceeds max demand for $resourceType: $alloc > $max")
+                    isValid = false
+                }
+                if (nd < 0) {
+                    Logger.error("Negative need for $resourceType: $nd")
+                    isValid = false
+                }
+            }
+            return isValid
         }
 
         /**
@@ -283,6 +321,35 @@ class ProcessControlBlock(
         val released = resourceInfo.releaseResource(resourceType, amount)
         Logger.info("Process $name released $released of $resourceType")
         return released
+    }
+    /**
+     * 验证进程资源状态
+     */
+    fun validateResourceState(context: String = ""): Boolean {
+        val isValid = resourceInfo.validateState()
+        if (!isValid) {
+            Logger.error("Resource state validation failed for process $name $context")
+            Logger.error("Current state: maxDemand=${resourceInfo.maxDemand}, allocation=${resourceInfo.allocation}, need=${resourceInfo.need}")
+        }
+        return isValid
+    }
+
+    /**
+     * 授予资源 - 包装方法（添加验证）
+     */
+    fun grantResourceWithValidation(resourceType: String, amount: Int) {
+        // 验证当前状态
+        if (!validateResourceState("before granting $amount of $resourceType")) {
+            throw IllegalStateException("Cannot grant resources due to invalid state")
+        }
+
+        // 执行授予
+        grantResource(resourceType, amount)
+
+        // 验证授予后的状态
+        if (!validateResourceState("after granting $amount of $resourceType")) {
+            throw IllegalStateException("State inconsistency after granting resources")
+        }
     }
 
     /**
